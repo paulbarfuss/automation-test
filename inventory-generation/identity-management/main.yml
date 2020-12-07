@@ -107,8 +107,8 @@
         dest: '{{ directory }}/iac/inventories/identity-management/inventory/hosts'
 
     - name: 'Create ResourceClaim'
-      copy:
-        content: "{{ lookup('template', inventory_dir + '/../files/templates/resourceclaim.yaml.j2') }}"
+      template:
+        src: resourceclaim.yaml.j2
         dest: '{{ directory }}/ocp-init/id-mgmt-{{ inv_ts | trim }}.yaml'
       when:
         - (inv_has_diff is defined and inv_has_diff is true) or not existing_inv.stat.exists
