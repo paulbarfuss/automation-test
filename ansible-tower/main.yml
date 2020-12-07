@@ -46,6 +46,6 @@
         dest: '{{ directory }}/iac/inventories/ansible-tower/inventory/hosts'
 
     - name: 'Create ResourceClaim'
-      copy:
-        content: "{{ lookup('template', inventory_dir + 'resourceclaim.yaml.j2') }}"
+      template:
+        src: resourceclaim.yaml.j2
         dest: '{{ directory }}/ocp-init/scheduled-notifications.yaml'
