@@ -1,0 +1,13 @@
+---
+
+inventories:
+  - dummy-name
+  - dummy-two
+
+inventory_dirs:
+  - group_vars
+  - host_vars
+
+files:
+  - "iac/inventories/{{ inventory_name }}/inventory/hosts"
+  - "iac/inventories/{{ inventory_name }}/inventory/group_vars/all.yml"

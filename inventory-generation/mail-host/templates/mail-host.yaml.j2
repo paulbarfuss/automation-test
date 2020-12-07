@@ -1,0 +1,17 @@
+---
+
+mail:
+  host: smtp.gmail.com
+  port: 465
+  username: {{ mail_username }}
+  password: {{ mail_password }}
+  from: {{ mail_from }}
+  header: {{ mail_header }}
+  secure: always
+  subtype: 'html'
+  {% if bcc is defined -%}
+  bcc: 
+    {% filter indent(4) -%}
+    {{ bcc | to_nice_yaml(indent=2) }}
+    {%- endfilter -%}
+  {%- endif %}

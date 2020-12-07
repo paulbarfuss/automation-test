@@ -1,0 +1,22 @@
+---
+
+- name: Create necessary directory structure and files
+  hosts: local
+  tasks:
+     - name: "Ensure directory variable is provided"
+       fail:
+         msg: "directory variable must be provided."
+       when:
+         - directory is undefined or (directory | trim) == ""
+     - name: "Ensure inventories variable is provided"
+       fail:
+         msg: "inventories list is not provided"
+       when:
+         - inventories is undefined
+     - name: "Create directory structure for inventories" 
+       file:
+         state: directory
+         path: "{{ directory }}/iac/inventories/{{ item.0 }}/inventory/{{ item.1 }}"
+       with_nested:
+         - "{{ inventories }}"
+         - "{{ inventory_dirs }}"

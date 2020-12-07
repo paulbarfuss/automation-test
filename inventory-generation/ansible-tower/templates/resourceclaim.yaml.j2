@@ -1,0 +1,26 @@
+#jinja2: trim_blocks:False
+---
+apiVersion: poolboy.gpte.redhat.com/v1
+kind: ResourceClaim
+metadata:
+  name: {{ governor_name }}-{{ project_id }}{% if inv_ts is defined %}-{{ inv_ts | trim }}{% endif %}
+spec:
+  resources:
+  - template:
+      apiVersion: anarchy.gpte.redhat.com/v1
+      kind: AnarchySubject
+      metadata:
+        annotations:
+          poolboy.gpte.redhat.com/resource-provider-name: babylon
+        generateName: {{ governor_name }}-{{ claim_postfix | default("") }}
+        labels:
+          governor: {{ governor_name }}
+      spec:
+        governor: {{ governor_name }}
+        vars:
+          job_vars:
+            {%- filter indent(width=12) -%}
+            {% include 'ansible-tower.yaml.j2' %}
+            {%- endfilter -%}
+
+

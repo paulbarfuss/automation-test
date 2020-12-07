@@ -1,0 +1,114 @@
+---
+
+- name: Generate identity-management inventory based off of engagement.json
+  hosts: local
+  gather_facts: false
+  tasks:
+    - name: 'Fail If Working Directory Is Not Provided'
+      fail:
+        msg: 'directory var needs to be provided in order to ensure a safe working directory'
+      when:
+        - directory is undefined or (directory | trim) == ""
+
+    - name: 'Fail If Governor Name Is Not Provided'
+      fail:
+        msg: 'governor_name var needs to be provided in order to indicate babylon workflow'
+      when:
+        - governor_name is undefined or (governor_name | trim) == ""
+
+    - name: Generate Timestamp
+      set_fact:
+        inv_ts: " {{ lookup('pipe','date +%Y%m%d%H%M%S') }}"
+
+    - name: Read Engagement Data
+      include_vars:
+        file: '{{ directory }}/engagement.json'
+
+    - name: Read Credentials
+      include_vars:
+        file: '{{ directory }}/{{ config_dir }}/{{ item }}'
+      loop:
+        - 'ocp-admin-credentials.json'
+        - 'ocp-ldap-sa-credentials.json'
+
+    - name: 'Add users to inventory'
+      set_fact:
+        users: "{{ (users | default([])) +  [ { 'first_name': (item.first_name | trim), 'last_name': (item.last_name | trim), 'email': (item.email | trim) , 'user_name': (item.email.split('@')[0] | trim) } ] }}"
+      loop: '{{ engagement_users }}'
+
+    - name: 'Add LDAP Service Account'
+      set_fact:
+        users: "{{ (users | default([])) + [ { 'first_name': 'LDAP', 'last_name': 'SA', 'email': 'ldap@localhost.com', 'user_name': ocp_ldap_sa_username, 'generate_password': false, 'password': ocp_ldap_sa_password  } ] }}"
+
+    - name: 'Get Unique Groups'
+      set_fact:
+        unique_groups: "{{ engagement_users | json_query('[].role') | unique }}"
+
+    - name: 'Set Group Membership'
+      set_fact:
+        usrgrp: "{{ (usrgrp | default([])) + [ {'name': item, 'members': (engagement_users | selectattr('role','equalto',item) | map(attribute='email') | map('regex_replace','@.*','') | list) } ] }}"
+      loop: '{{ unique_groups }}'
+
+    - name: Add LDAP Groups Grouping
+      set_fact:
+        usrgrp: "{{ (usrgrp | default([])) + [ {'name': 'ldap-members', 'childgroups': unique_groups } ] }}"
+
+    - name: 'Set IDM facts'
+      set_fact:
+        ipa_host: "{{ 'ipa.apps.' + (ocp_sub_domain | lower) + '.' + engagement_region | default('dev-1') + '.' + ocp_base_url }}"
+        ipa_admin_user: '{{ ocp_admin_username }}'
+        ipa_admin_password: '{{ ocp_admin_password }}'
+        ipa_validate_certs: '{{ ipa_validate_certs | default(true) }}'
+
+    - name: 'Assemble inventory'
+      set_fact:
+        claim_content:
+          env_end_date: "{{ (archive_date | regex_replace('^(.*)T.*$', '\\1') | to_datetime('%Y-%m-%d')).strftime('%d %b %Y') }}"
+          end_date: "{{ (end_date | regex_replace('^(.*)T.*$', '\\1') | to_datetime('%Y-%m-%d')).strftime('%d %b %Y') }}"
+          start_date: "{{ (start_date | regex_replace('^(.*)T.*$', '\\1') | to_datetime('%Y-%m-%d')).strftime('%d %b %Y') }}"
+          customer_name: '{{ customer_name }}'
+          project_name: '{{ project_name }}'
+          ipa_validate_certs: '{{ ipa_validate_certs }}'
+          ipa_host: '{{ ipa_host }}'
+          ipa_admin_user: '{{ ipa_admin_user }}'
+          ipa_admin_password: '{{ ipa_admin_password }}'
+          lodestar_identities:
+            users: '{{ users }}'
+            groups: '{{ usrgrp }}'
+
+    - name: 'Check For Existing Inventory File'
+      stat:
+        path: '{{ directory }}/iac/inventories/identity-management/inventory/group_vars/all.yml'
+      register: existing_inv
+
+    - name: 'Pull existing inventory vars'
+      include_vars:
+        file: '{{ directory }}/iac/inventories/identity-management/inventory/group_vars/all.yml'
+        name: existing_inv_contents
+      when:
+        - existing_inv.stat.exists
+
+    - name: 'Diff existing vars with new inventory'
+      set_fact:
+        inv_has_diff: true
+      when:
+        - existing_inv.stat.exists
+        - existing_inv_contents is defined
+        - existing_inv_contents != (claim_content | from_yaml)
+
+    - name: 'Write inventory to file'
+      copy:
+        content: '{{ claim_content | to_nice_yaml(indent=2) }}'
+        dest: '{{ directory }}/iac/inventories/identity-management/inventory/group_vars/all.yml'
+
+    - name: 'Create hosts file'
+      copy:
+        content: "[identity-hosts]\nlocalhost"
+        dest: '{{ directory }}/iac/inventories/identity-management/inventory/hosts'
+
+    - name: 'Create ResourceClaim'
+      copy:
+        content: "{{ lookup('template', inventory_dir + '/../files/templates/resourceclaim.yaml.j2') }}"
+        dest: '{{ directory }}/ocp-init/id-mgmt-{{ inv_ts | trim }}.yaml'
+      when:
+        - (inv_has_diff is defined and inv_has_diff is true) or not existing_inv.stat.exists
