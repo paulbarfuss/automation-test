@@ -1,0 +1,51 @@
+---
+- name: Generate ansible-tower inventory based off of engagement.json
+  hosts: local
+  gather_facts: false
+  tasks:
+    - name: 'Fail If Working Directory Is Not Provided'
+      fail:
+        msg: 'directory var needs to be provided in order to ensure a safe working directory'
+      when:
+        - directory is undefined or (directory | trim) == ""
+
+    - name: 'Fail If Governor Name Is Not Provided'
+      fail:
+        msg: 'governor_name var needs to be provided in order to indicate babylon workflow'
+      when:
+        - governor_name is undefined or (governor_name | trim) == ""
+
+    - name: Read Engagement Data
+      include_vars:
+        file: '{{ directory }}/engagement.json'
+
+    - name: Read Credentials
+      include_vars:
+        file: '{{ directory }}/{{ config_dir }}/{{ item }}'
+      loop:
+        - 'ocp-admin-credentials.json'
+        - 'ocp-ldap-sa-credentials.json'
+
+    - name: 'Assemble inventory'
+      set_fact:
+        env_end_date: "{{ (archive_date | regex_replace('^(.*)T.*$', '\\1') | to_datetime('%Y-%m-%d')).strftime('%d %b %Y') }}"
+        end_date: "{{ (end_date | regex_replace('^(.*)T.*$', '\\1') | to_datetime('%Y-%m-%d')).strftime('%d %b %Y') }}"
+        start_date: "{{ (start_date | regex_replace('^(.*)T.*$', '\\1') | to_datetime('%Y-%m-%d')).strftime('%d %b %Y') }}"
+        customer_name: '{{ customer_name }}'
+        project_name: '{{ project_name }}'
+        smtp_credential: "{{ gmail-smtp-credential }}"
+
+    - name: 'Write inventory to file'
+      template:
+        src: 'ansible-tower.yaml.j2'
+        dest: '{{ directory }}/iac/inventories/ansible-tower/inventory/group_vars/ansible-tower.yaml'
+
+    - name: 'Create hosts file'
+      copy:
+        content: "[ansible-tower]\nlocalhost"
+        dest: '{{ directory }}/iac/inventories/ansible-tower/inventory/hosts'
+
+    - name: 'Create ResourceClaim'
+      copy:
+        content: "{{ lookup('template', inventory_dir + 'resourceclaim.yaml.j2') }}"
+        dest: '{{ directory }}/ocp-init/scheduled-notifications.yaml'

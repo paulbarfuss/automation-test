@@ -1,0 +1,46 @@
+#jinja2: trim_blocks:False
+---
+ansible_tower:
+  url: "{{ ansible_tower_url }}"
+  admin_password: "{{ ansible_tower_admin_password }}"
+  projects:
+    - name: "infra-ansible"
+      description: "Infra Ansible"
+      scm_type: "git"
+      scm_url: "https://github.com/paulbarfuss/infra-ansible.git"
+      scm_branch: "add-tower-schedule-module"
+      organization: "{{ tower.organization }}"
+    - name: "{{ customer_name }} {{ project_name }} Project"
+      description: "{{ description }}"
+      organization: {{ tower.organization }}
+      scm_type: "git"
+      scm_url: "{{ url }}"
+      scm_branch: "master"
+      scm_credential_name: "{{ scm_credential_name }}"
+      scm_update_on_launch: true
+  job_templates:
+    - name: "Email and notify list of users - {{ customer_name }} {{ project_name }}"
+      description: "Job Template to email a list of users"
+      inventory: "{{ customer_name }} {{ project_name }} Inventory"
+      project: "infra-ansible"
+      playbook: "playbooks/notifications/email-notify-list-of-users.yml"
+      credential: "{{ smtp_credential }}"
+      ask_variables_on_launch: true
+  inventories:
+    - name: "{{ customer_name }} {{ project_name }} Inventory"
+      variables: ""
+      organization: {{ tower.organization }}
+      sources:
+        - name: "{{ customer_name }} {{ project_name }} Inventory Source"
+          description: "GitLab inventory source for the {{ customer_name }} {{ project_name }} engagement"
+          credential: "{{ scm_credential_name }}"
+          source: "scm"
+          source_project: "{{ customer_name }} {{ project_name }} Project"
+          source_path: "iac/inventories/mail-host/inventory/hosts"
+          update_on_launch: true
+          source_vars: |-
+            ---
+  schedules:
+    {% filter indent(4) -%}
+    {{ schedules | to_nice_yaml(indent=2) }}
+    {%- endfilter -%}
