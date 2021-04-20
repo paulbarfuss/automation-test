@@ -5,8 +5,8 @@
   tasks:
     - name: Set fact
       set_fact:
-        url: "{{ project.git_ssh_url }}"
-        directory: "{{ project.id }}"
+        url: "{{ tower_webhook_payload.project.git_ssh_url }}"
+        directory: "{{ tower_webhook_payload.project.id }}"
 
     - name: Git checkout
       git:
