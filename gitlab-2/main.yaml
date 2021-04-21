@@ -44,7 +44,7 @@
               organization: "lodestar"
           inventories:
             - name: "{{ tower_webhook_payload.project.namespace }} Inventory"
-              variables: "{{ engagement_data | from_json }}"
+              variables: "{{ engagement_data }}"
               organization: "lodestar"
               hosts:
                 - name: "localhost"
