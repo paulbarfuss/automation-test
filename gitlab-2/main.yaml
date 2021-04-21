@@ -3,7 +3,54 @@
   hosts: all
 
   tasks:
-    - name: Print engagement data
+    - name: Set fact
+      set_fact:
+        url: "{{ tower_webhook_payload.project.git_ssh_url }}"
+        directory: "/tmp/git_projects/{{ tower_webhook_payload.project.id }}"
+
+    - name: Create gitlab project directory
+      file:
+        path: "{{ directory }}"
+        state: directory
+        mode: '0775'
+
+    - name: Git clone engagement repository
+      git:
+        repo: "{{ url }}"
+        dest: "{{ directory }}"
+        ssh_opts: "-o StrictHostKeyChecking=no"
+        force: true
+        key_file: /var/lib/awx/.ssh/bridge-private-key
+
+    - name: Set engagement_data var
+      set_fact:
+        engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
+
+    - name: Set facts
+      set_fact:
+        delete_missing_items: false
+        ansible_tower:
+          url: "{{ ansible_tower_url }}"
+          admin_username: "{{ ansible_tower_admin_username }}"
+          admin_password: "{{ ansible_tower_admin_password }}"
+          projects:
+            - name: "{{tower_webhook_payload.project.namespace }} Project"
+              description: "My Project"
+              scm_type: "git"
+              scm_url: "{{ tower_webhook_payload.project.ssh_url }}"
+              scm_branch: "{{ tower_webhook_payload.project.default_branch }}"
+              scm_credential_name: "test_deploy_key"
+              scm_update_on_launch: true
+              organization: "lodestar"
+          inventories:
+            - name: "{{ tower_webhook_payload.project.namespace }} Inventory"
+              variables: "{{ engagement_data | from_json }}"
+              organization: "lodestar"
+              hosts:
+                - name: "localhost"
+                  variables: |-
+                    ---
+                    ansible_connection: local
+    - name: Print debug
       debug:
-        var: engagement_data
-        
+        var: ansible_tower
