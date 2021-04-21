@@ -19,10 +19,11 @@
         state: directory
         mode: '0775'
 
-    - name: Touch known_hosts file
+    - name: Ensure known_hosts file is present
       file:
         path: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
-        state: touch
+        state: present
+        mode: '0644'
 
     - name: Git checkout
       git:
@@ -30,7 +31,6 @@
         dest: "{{ directory }}"
         accept_hostkey: true
         force: true
-        ssh_opts: "-o StrictHostKeyChecking=no"
         key_file: "{{ gitlab_ssh_private_key_file }}"
 
     - name: Set engagement_data var
