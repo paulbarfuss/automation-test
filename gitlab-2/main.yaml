@@ -1,0 +1,9 @@
+---
+- name: Test Git Print Vars
+  hosts: all
+
+  tasks:
+    - name: Print engagement data
+      debug:
+        var: engagement_data
+        
