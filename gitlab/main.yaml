@@ -21,7 +21,7 @@
 
     - name: Touch known_hosts file
       file:
-        path: "lookup('env','HOME') + '.ssh/known_hosts' | join('/') "
+        path: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
         state: touch
 
     - name: Git checkout
