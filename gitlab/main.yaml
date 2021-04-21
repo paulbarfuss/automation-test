@@ -13,31 +13,24 @@
         path: "{{ gitlab_ssh_private_key_file }}"
         mode: '0600'
 
-    - name: Create git directory
+    - name: Create gitlab project directory
       file:
         path: "{{ directory }}"
         state: directory
         mode: '0775'
 
-    - name: Ensure ssh directory is writable
-      file:
-        path: "{{ lookup('env','HOME') + '/.ssh' }}"
-        state: directory
-        mode: '0775'
-        owner: awx
-        group: root
-
     - name: Git checkout
       git:
         repo: "{{ url }}"
         dest: "{{ directory }}"
-        accept_hostkey: true
         force: true
+        version: HEAD
+        ssh_opts: -o StrictHostKeyChecking=no
         key_file: "{{ gitlab_ssh_private_key_file }}"
 
     - name: Set engagement_data var
       set_fact:
-        engagement_data: "{{ lookup('file', (directory + 'engagement.json')|join('/')) | from_json }}"
+        engagement_data: "{{ lookup('file', (directory + '/iac/engagement.json') | from_json }}"
 
     - name: Print engagement data
       debug:
