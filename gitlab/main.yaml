@@ -8,8 +8,23 @@
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "{{ tower_webhook_payload.project.id }}"
 
+    - name: Create path for Git checkout
+      file:
+        path: "{{ directory }}"
+        state: directory
+
     - name: Git checkout
       git:
         repo: "{{ url }}"
         dest: "{{ directory }}"
         key_file: "{{ gitlab_ssh_private_key_file }}"
+
+
+    - name: Set engagement_data var
+      set_fact:
+        engagement_data: "{{ lookup('file', (directory + 'engagement.json')|join('/')) | from_json }}"
+
+    - name: Print engagement data
+      debug:
+        var: engagement_data
+        
