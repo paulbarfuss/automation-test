@@ -24,7 +24,7 @@
         path: "{{ lookup('env','HOME') + '/.ssh' }}"
         state: directory
         mode: '0775'
-        user: awx
+        owner: awx
         group: root
 
     - name: Git checkout
