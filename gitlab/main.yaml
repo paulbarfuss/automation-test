@@ -3,7 +3,7 @@
   hosts: all
 
   environment:
-    GIT_SSH: ssh -o StrictHostKeyChecking=no
+    GIT_SSH: ssh -o StrictHostKeyChecking=no -i /var/lib/awx/.ssh/deploy.key
 
   tasks:
     - name: Set fact
@@ -14,7 +14,7 @@
     - name: Move ssh key into place
       copy:
         src: "{{ gitlab_ssh_private_key_file }}"
-        dest: "{{ (lookup('env' 'HOME') + '/.ssh/deploy_key') }}"
+        dest: "/var/lib/awx/.ssh/deploy.key"
 
     - name: Create gitlab project directory
       file:
