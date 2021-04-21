@@ -19,9 +19,8 @@
         path: "{{ directory }}"
 
     - name: Git clone
-      command: |
-         GIT_SSH_COMMAND="ssh -i {{ gitlab_ssh_private_key_file }} -o StrictHostKeyChecking=no" \
-         git clone {{ url }} {{ directory }}
+      shell: |
+         GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i {{ gitlab_ssh_private_key_file }}' git clone {{ url }} {{ directory }}
 
     - name: Set engagement_data var
       set_fact:
