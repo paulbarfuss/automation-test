@@ -19,11 +19,13 @@
         state: directory
         mode: '0775'
 
-    - name: Ensure known_hosts file is present
+    - name: Ensure ssh directory is writable
       file:
-        path: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
-        state: file
-        mode: '0644'
+        path: "{{ lookup('env','HOME') + '/.ssh' }}"
+        state: directory
+        mode: '0775'
+        user: awx
+        group: root
 
     - name: Git checkout
       git:
