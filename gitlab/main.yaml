@@ -25,8 +25,3 @@
     - name: Set engagement_data var
       set_fact:
         engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
-
-    - name: Print engagement data
-      debug:
-        var: engagement_data
-        
