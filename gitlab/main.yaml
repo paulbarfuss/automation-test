@@ -8,6 +8,11 @@
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "{{ tower_webhook_payload.project.id }}"
 
+    - name: Fix permissions on SSH key from custom credential
+      file:
+        path: "{{ gitlab_ssh_private_key_file }}"
+        mode: '0600'
+
     - name: Create git directory
       file:
         path: "{{ directory }}"
