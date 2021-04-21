@@ -20,7 +20,7 @@
         dest: "{{ directory }}"
         ssh_opts: "-o StrictHostKeyChecking=no"
         force: true
-        key_file: /var/lib/awx/.ssh/bridge-private-key
+        #key_file: /var/lib/awx/.ssh/bridge-private-key
 
     - name: Set engagement_data var
       set_fact:
