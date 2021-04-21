@@ -14,8 +14,13 @@
         state: directory
         mode: '0775'
 
+    - name: Get full path
+      stat:
+        path: "{{ directory }}"
+      register: check_directory
+
     - name: Git clone
-      command: "git clone -o StrictHostKeyChecking=no {{ url }} {{ directory }}"
+      command: "git clone -o StrictHostKeyChecking=no {{ url }} {{ check_directory.stat.path }}"
 
     - name: Set engagement_data var
       set_fact:
