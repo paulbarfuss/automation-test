@@ -14,9 +14,9 @@
         state: directory
         mode: '0775'
 
-    - name: Stat key
+    - name: Stat directory
       stat:
-        path: "{{ gitlab_ssh_private_key_file }}"
+        path: "{{ directory }}"
 
     - name: Git clone
       command: |
