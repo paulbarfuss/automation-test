@@ -22,7 +22,7 @@
     - name: Ensure known_hosts file is present
       file:
         path: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
-        state: present
+        state: file
         mode: '0644'
 
     - name: Git checkout
