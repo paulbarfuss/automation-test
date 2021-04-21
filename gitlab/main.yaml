@@ -8,11 +8,6 @@
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "{{ tower_webhook_payload.project.id }}"
 
-    - name: Create path for Git checkout
-      file:
-        path: "{{ directory }}"
-        state: directory
-
     - name: Git checkout
       git:
         repo: "{{ url }}"
