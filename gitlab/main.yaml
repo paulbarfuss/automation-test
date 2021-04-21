@@ -2,9 +2,6 @@
 - name: Test Git Checkout
   hosts: all
 
-  environment:
-    GIT_SSH: ssh -o StrictHostKeyChecking=no
-
   tasks:
     - name: Set fact
       set_fact:
@@ -17,8 +14,12 @@
         state: directory
         mode: '0775'
 
-    - name: Git clone
-      shell: "git clone {{ url }} {{ directory }}"
+    - name: Git clone engagement repository
+      git:
+        repo: "{{ url }}"
+        dest: "{{ directory }}"
+        ssh_opts: "-o StrictHostKeyChecking=no"
+        force: true
 
     - name: Set engagement_data var
       set_fact:
