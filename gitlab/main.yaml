@@ -19,12 +19,18 @@
         state: directory
         mode: '0775'
 
+    - name: Touch known_hosts file
+      file:
+        path: "lookup('env','HOME') + '.ssh/known_hosts' | join('/') "
+        state: touch
+
     - name: Git checkout
       git:
         repo: "{{ url }}"
         dest: "{{ directory }}"
-        ssh_opts: "-o StrictHostKeyChecking=no"
+        accept_hostkey: true
         force: true
+        ssh_opts: "-o StrictHostKeyChecking=no"
         key_file: "{{ gitlab_ssh_private_key_file }}"
 
     - name: Set engagement_data var
