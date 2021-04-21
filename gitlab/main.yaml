@@ -2,9 +2,6 @@
 - name: Test Git Checkout
   hosts: all
 
-  environment:
-    GIT_SSH_COMMAND: "ssh -i {{ gitlab_ssh_private_key_file }} -o StrictHostKeyChecking=no"
- 
   tasks:
     - name: Set fact
       set_fact:
@@ -23,7 +20,8 @@
 
     - name: Git clone
       command: |
-        git clone {{ url }} {{ directory }}
+         GIT_SSH_COMMAND="ssh -i {{ gitlab_ssh_private_key_file }} -o StrictHostKeyChecking=no" \
+         git clone {{ url }} {{ directory }}
 
     - name: Set engagement_data var
       set_fact:
