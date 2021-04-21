@@ -6,7 +6,7 @@
     - name: Set fact
       set_fact:
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
-        directory: "{{ tower_webhook_payload.project.id }}"
+        directory: "/tmp/{{ tower_webhook_payload.project.id }}"
 
     - name: Create gitlab project directory
       file:
@@ -14,13 +14,8 @@
         state: directory
         mode: '0775'
 
-    - name: Get full path
-      stat:
-        path: "{{ directory }}"
-      register: check_directory
-
     - name: Git clone
-      command: "git clone -o StrictHostKeyChecking=no {{ url }} {{ check_directory.stat.path }}"
+      command: "git clone -o StrictHostKeyChecking=no {{ url }} {{ directory }}"
 
     - name: Set engagement_data var
       set_fact:
