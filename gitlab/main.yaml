@@ -3,13 +3,18 @@
   hosts: all
 
   environment:
-    GIT_SSH: "ssh -o StrictHostKeyChecking=no -i {{ gitlab_ssh_private_key_file }}"
+    GIT_SSH: ssh -o StrictHostKeyChecking=no
 
   tasks:
     - name: Set fact
       set_fact:
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "{{ playbook_dir }}/{{ tower_webhook_payload.project.id }}"
+
+    - name: Move ssh key into place
+      copy:
+        src: "{{ gitlab_ssh_private_key_file }}"
+        dest: "{{ /var/lib/awx/.ssh/deploy_key }}"
 
     - name: Create gitlab project directory
       file:
