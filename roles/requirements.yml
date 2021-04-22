@@ -1,0 +1,6 @@
+# This is the Ansible Galaxy requirements file to pull in required roles
+
+- name: infra-ansible
+  scm: git
+  src: https://github.com/redhat-cop/infra-ansible
+  version: master
