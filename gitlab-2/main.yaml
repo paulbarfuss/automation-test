@@ -1,5 +1,5 @@
 ---
-- name: Test Git Print Vars
+- name: Create new inventory
   hosts: all
 
   tasks:
@@ -7,6 +7,7 @@
       set_fact:
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "/tmp/git_projects/{{ tower_webhook_payload.project.id }}"
+        project: "{{ tower_webhook_payload.project.ssh_url }}"
 
     - name: Create gitlab project directory
       file:
@@ -34,7 +35,7 @@
           admin_username: "{{ ansible_tower_admin_username }}"
           admin_password: "{{ ansible_tower_admin_password }}"
           projects:
-            - name: "{{tower_webhook_payload.project.namespace }} Project"
+            - name: "{{ project_namespace }} Project"
               description: "My Project"
               scm_type: "git"
               scm_url: "{{ tower_webhook_payload.project.ssh_url }}"
@@ -43,7 +44,7 @@
               scm_update_on_launch: true
               organization: "lodestar"
           inventories:
-            - name: "{{ tower_webhook_payload.project.namespace }} Inventory"
+            - name: "{{ project_namespace }} Inventory"
               variables: "{{ engagement_data }}"
               organization: "lodestar"
               hosts:
@@ -51,6 +52,19 @@
                   variables: |-
                     ---
                     ansible_connection: local
-    - name: Print debug
+              sources:
+                - name: "{{ project_namespace }} Source"
+                  credential: "test_deploy_key"
+                  source: "scm"
+                  source_project: "{{ project_namespace }} Project"
+                  source_path: "/"
+                  source_vars: ""
+
+    - name: Print ansible_tower vars
       debug:
         var: ansible_tower
+
+- name: Create inventory with infra-ansible
+  import_playbook: ./requirements_roles/infra-ansible/playbooks/ansible/tower/configure-ansible-tower.yml
+  vars:
+    users: "{{ ansible_tower }}"
