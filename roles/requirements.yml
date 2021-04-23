@@ -2,5 +2,5 @@
 
 - name: infra-ansible
   scm: git
-  src: https://github.com/redhat-cop/infra-ansible
-  version: master
+  src: https://github.com/paulbarfuss/infra-ansible
+  version: add_tower_job_launch
