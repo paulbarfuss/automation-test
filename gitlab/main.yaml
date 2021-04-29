@@ -27,6 +27,20 @@
         engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
         cacheable: true
 
+    - name: whoami
+      command: whoami
+      register: whoami
+
+    - name: get permissions
+      command: "ls -lah {{ directory }}"
+      register: lslah
+
+    - name: Debug
+      debug:
+        var:
+          - whoami
+          - lslah
+
     - name: File creation test
       file:
         path: "{{ directory }}/create_file_test.txt"
