@@ -13,6 +13,7 @@
         path: "{{ directory }}"
         state: directory
         mode: '0775'
+        recurse: yes
 
     - name: Git clone engagement repository
       git:
@@ -26,20 +27,6 @@
       set_fact:
         engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
         cacheable: true
-
-    - name: whoami
-      command: whoami
-      register: whoami
-
-    - name: get permissions
-      command: "ls -lah {{ directory }}"
-      register: lslah
-
-    - name: Debug
-      debug:
-        var:
-          - whoami
-          - lslah
 
     - name: File creation test
       file:
