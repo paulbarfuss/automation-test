@@ -30,7 +30,7 @@
     - name: File creation test
       file:
         path: "{{ directory }}/touch.txt"
-        state: present
+        state: file
 
     - name: Git add
       shell: git add .
