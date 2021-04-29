@@ -59,6 +59,7 @@
                   source_project: "{{ project_namespace }} Project"
                   source_path: "/"
                   source_vars: ""
+      cacheable: true
 
     - name: Print ansible_tower vars
       debug:
