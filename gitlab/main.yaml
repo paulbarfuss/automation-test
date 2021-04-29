@@ -29,8 +29,7 @@
 
     - name: File creation test
       file:
-        path: "{{ directory }}/touch.txt"
-        state: file
+        path: "{{ directory }}/create_file_test.txt"
 
     - name: Git add
       shell: git add .
