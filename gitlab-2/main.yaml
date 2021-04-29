@@ -29,6 +29,7 @@
 
     - name: Set facts
       set_fact:
+        cacheable: true
         delete_missing_items: false
         ansible_tower:
           url: "{{ ansible_tower_url }}"
@@ -59,7 +60,6 @@
                   source_project: "{{ project_namespace }} Project"
                   source_path: "/"
                   source_vars: ""
-      cacheable: true
 
     - name: Print ansible_tower vars
       debug:
