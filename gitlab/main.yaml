@@ -20,8 +20,9 @@
         repo: "{{ url }}"
         dest: "{{ directory }}"
         ssh_opts: "-o StrictHostKeyChecking=no"
+        accept_hostkey: true
         force: true
-        key_file: /var/lib/awx/.ssh/bridge-private-key
+        key_file: /var/lib/awx/.ssh/automation-test
 
     - name: Set engagement_data var
       set_fact:
@@ -48,6 +49,6 @@
         chdir: "{{ directory }}"
 
     - name: Git push
-      shell: "GIT_SSH_COMMAND='ssh -i /var/lib/awx/.ssh/bridge-private-key -o StrictHostKeyChecking=no' git push origin master"
+      shell: git push origin master
       args:
         chdir: "{{ directory }}"
