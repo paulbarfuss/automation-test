@@ -31,7 +31,7 @@
     - name: File creation test
       file:
         path: "{{ directory }}/create_file_test.txt"
-        state: file
+        state: touch
         mode: '0664'
 
     - name: Git add
