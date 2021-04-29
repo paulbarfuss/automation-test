@@ -27,4 +27,19 @@
         engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
       cacheable: true
 
+    - name: File creation test
+      file:
+        path: "{{ directory }}/touch.txt"
+        state: present
 
+    - name: Git add
+      shell: git add .
+      chdir: "{{ directory }}"
+
+    - name: Git add
+      shell: git commit -m 'Created by Ansible Tower bot'
+      chdir: "{{ directory }}"
+
+    - name: Git push
+      shell: GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git push origin master
+      chdir: "{{ directory }}"
