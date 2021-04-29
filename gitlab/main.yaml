@@ -34,12 +34,15 @@
 
     - name: Git add
       shell: git add .
-      chdir: "{{ directory }}"
+      args:
+        chdir: "{{ directory }}"
 
     - name: Git add
       shell: git commit -m 'Created by Ansible Tower bot'
-      chdir: "{{ directory }}"
+      args:
+        chdir: "{{ directory }}"
 
     - name: Git push
       shell: GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" git push origin master
-      chdir: "{{ directory }}"
+      args:
+        chdir: "{{ directory }}"
