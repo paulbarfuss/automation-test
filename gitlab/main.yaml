@@ -31,6 +31,8 @@
     - name: File creation test
       file:
         path: "{{ directory }}/create_file_test.txt"
+        state: file
+        mode: '0664'
 
     - name: Git add
       shell: git add .
