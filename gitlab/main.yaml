@@ -48,6 +48,6 @@
         chdir: "{{ directory }}"
 
     - name: Git push
-      shell: GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git push origin master
+      shell: "GIT_SSH_COMMAND='ssh -i /var/lib/awx/.ssh/bridge-private-key -o StrictHostKeyChecking=no' git push origin master"
       args:
         chdir: "{{ directory }}"
