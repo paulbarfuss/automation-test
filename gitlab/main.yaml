@@ -15,14 +15,17 @@
         mode: '0775'
         recurse: yes
 
-    - name: Git clone engagement repository
-      git:
-        repo: "{{ url }}"
-        dest: "{{ directory }}"
-        ssh_opts: "-o StrictHostKeyChecking=no"
-        accept_hostkey: true
-        force: true
-        key_file: /var/lib/awx/.ssh/automation-test
+        #    - name: Git clone engagement repository
+        #      git:
+        #        repo: "{{ url }}"
+        #        dest: "{{ directory }}"
+        #        ssh_opts: "-o StrictHostKeyChecking=no"
+        #        accept_hostkey: true
+        #        force: true
+        #        key_file: /var/lib/awx/.ssh/automation-test
+
+    - name: Git clone
+      shell: "git clone {{ url }} {{ directory }}"
 
     - name: Set engagement_data var
       set_fact:
