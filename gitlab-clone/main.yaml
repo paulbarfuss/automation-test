@@ -1,6 +1,8 @@
 ---
-- name: Test Git Checkout
-  hosts: all
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  name: Git clone engagement repo
 
   tasks:
     - name: Set fact
@@ -8,21 +10,18 @@
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "/tmp/git_projects/{{ tower_webhook_payload.project.id }}"
 
-    - name: Create gitlab project directory
+    - name: Check for gitlab project directory
+      stat:
+        path: "{{ directory }}"
+      register: directory_check
+
+    - name: Cleanup existing working project directory
       file:
         path: "{{ directory }}"
-        state: directory
-        mode: '0775'
+        state: absent
         recurse: yes
-
-        #    - name: Git clone engagement repository
-        #      git:
-        #        repo: "{{ url }}"
-        #        dest: "{{ directory }}"
-        #        ssh_opts: "-o StrictHostKeyChecking=no"
-        #        accept_hostkey: true
-        #        force: true
-        #        key_file: /var/lib/awx/.ssh/automation-test
+      when:
+        directory_check.stat.isdir is defined and directory_check.stat.isdir
 
     - name: Configure Git username and email
       shell: |
