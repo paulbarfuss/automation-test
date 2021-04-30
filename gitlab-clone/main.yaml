@@ -11,11 +11,6 @@
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "/tmp/git_projects/{{ tower_webhook_payload.project.id }}"
 
-    - name: Configure Git username and email
-      shell: |
-        git config --global user.email bot@bot.com;
-        git config --global user.name bot
-
     - name: Cleanup existing working project directory
       file:
         path: "{{ directory }}"

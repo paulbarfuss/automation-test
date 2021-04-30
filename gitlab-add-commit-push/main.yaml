@@ -9,6 +9,11 @@
       shell: git add .
       args:
         chdir: "{{ directory }}"
+    
+    - name: Configure Git username and email
+      shell: |
+        git config --global user.email bot@bot.com;
+        git config --global user.name bot
 
     - name: Git commit
       shell: |
@@ -27,3 +32,4 @@
         chdir: "{{ directory }}"
       when:
         git_commit.rc == 0
+
