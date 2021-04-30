@@ -23,32 +23,3 @@
       set_fact:
         cacheable: true
         engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
-
-    - name: File creation test
-      file:
-        path: "{{ directory }}/create_file_test.txt"
-        state: touch
-        mode: '0664'
-
-    - name: Git add
-      shell: git add .
-      args:
-        chdir: "{{ directory }}"
-
-    - name: Git commit
-      shell: |
-        git commit -m 'Created by Ansible Tower bot'
-      args:
-        chdir: "{{ directory }}"
-      register: git_commit
-      changed_when:
-        - git_commit.rc == 0
-      failed_when:
-        - git_commit.rc > 1
-
-    - name: Git push
-      shell: git push origin master
-      args:
-        chdir: "{{ directory }}"
-      when:
-        git_commit.rc == 0
