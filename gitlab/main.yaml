@@ -63,3 +63,5 @@
       shell: git push origin master
       args:
         chdir: "{{ directory }}"
+      when:
+        git_commit.rc == 0
