@@ -1,0 +1,12 @@
+
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  name: Git do stuff, like touch a file for example
+  tasks:
+    - name: File creation test
+      file:
+        path: "{{ directory }}/create_file_test_2.txt"
+        state: touch
+        mode: '0664'
