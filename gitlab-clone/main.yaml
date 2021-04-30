@@ -7,6 +7,7 @@
   tasks:
     - name: Set fact
       set_fact:
+        cacheable: true
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "/tmp/git_projects/{{ tower_webhook_payload.project.id }}"
 
@@ -25,8 +26,8 @@
 
     - name: Set engagement_data var
       set_fact:
-        engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
         cacheable: true
+        engagement_data: "{{ lookup('file', directory + '/engagement.json') | from_json }}"
 
     - name: File creation test
       file:
