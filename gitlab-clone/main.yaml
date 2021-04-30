@@ -10,23 +10,15 @@
         url: "{{ tower_webhook_payload.project.git_ssh_url }}"
         directory: "/tmp/git_projects/{{ tower_webhook_payload.project.id }}"
 
-    - name: Check for gitlab project directory
-      stat:
-        path: "{{ directory }}"
-      register: directory_check
+    - name: Configure Git username and email
+      shell: |
+        git config --global user.email bot@bot.com;
+        git config --global user.name bot
 
     - name: Cleanup existing working project directory
       file:
         path: "{{ directory }}"
         state: absent
-        recurse: yes
-      when:
-        directory_check.stat.isdir is defined and directory_check.stat.isdir
-
-    - name: Configure Git username and email
-      shell: |
-        git config --global user.email bot@bot.com;
-        git config --global user.name bot
 
     - name: Git clone
       shell: "git clone {{ url }} {{ directory }}"
